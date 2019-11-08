@@ -1,0 +1,3 @@
+#!/bin/sh
+
+celery worker -B -l DEBUG -A backend.worker.celery

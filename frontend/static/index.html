@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    let xhr = new XMLHttpRequest();
+    xhr.onload = function () {
+        if (xhr.status >= 200 && xhr.status < 300) {
+            let rsp = JSON.parse(xhr.responseText);
+            document.getElementById("answer_phone").textContent=rsp.phone;
+            document.getElementById("answer_provider").textContent=rsp.provider;
+            document.getElementById("answer_region").textContent=rsp.region;
+        } else {
+            console.log('The request failed!');
+        }
+    };
+
+    document.getElementById("submit").addEventListener('click', function (event) {
+        event.preventDefault();
+        let phone = document.getElementById("phone").value;
+        if (phone) {
+            xhr.open('GET', '/api/phone/'+phone+'/get_provider', true);
+            xhr.send();
+        }
+    }, false);
+  });
+</script>
+
+<form action="#" method="post">
+    <label>Phone</label>
+    <input type="text" name="phone" id="phone" value="">
+    <input type="submit" id="submit" value="Submit">
+</form>
+
+&nbsp;
+<div>
+    <h3>Phone</h3>
+    <span id="answer_phone"></span>
+</div>
+<div>
+    <h3>Provider</h3>
+    <span id="answer_provider"></span>
+</div>
+<div>
+    <h3>Region</h3>
+    <span id="answer_region"></span>
+</div>
+
+
+</body>
+</html>

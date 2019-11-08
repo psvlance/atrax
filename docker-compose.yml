@@ -1,0 +1,85 @@
+version: '3.5'
+
+services:
+  nginx:
+    container_name: atrax_nginx
+    image: atrax_nginx
+    build:
+        context: .
+        dockerfile: compose/nginx/Dockerfile
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+    depends_on:
+      - frontend
+      - backend
+    volumes:
+      - ./compose/nginx/atrax.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./frontend/static:/static
+      - ./compose/nginx/robots.txt:/static/robots.txt:ro
+    command: /start
+
+  backend: &backend
+    container_name: atrax__backend
+    image: atrax__backend
+    build:
+        context: .
+        dockerfile: compose/backend/Dockerfile
+    depends_on:
+      - postgres
+      - redis
+    env_file:
+      - compose/backend/backend.env
+    links:
+      - postgres
+    command: /start
+
+  celeryworker:
+    <<: *backend
+    container_name: atrax_celeryworker
+    image: atrax_celeryworker
+    logging:
+      driver: none
+    command: /start-celeryworker
+
+  celerybeat:
+    <<: *backend
+    container_name: atrax_celerybeat
+    image: atrax_celerybeat
+    logging:
+      driver: none
+    command: /start-celerybeat
+
+  celeryflower:
+    <<: *backend
+    container_name: atrax__celeryflower
+    image: atrax__celeryflower
+    logging:
+      driver: none
+    ports:
+      - "5555:5555"
+    command: /start-celeryflower
+
+  frontend:
+    container_name: atrax__frontend
+    image: atrax__frontend
+    build:
+      context: .
+      dockerfile: compose/frontend/Dockerfile
+    command: /start
+
+  postgres:
+    image: postgres:10.6
+    container_name: atrax_postgres
+    env_file:
+      - compose/postgres/postgres.env
+    logging:
+        driver: none
+
+  redis:
+    image: redis:3.2
+    container_name: atrax_redis
+    logging:
+      driver: none

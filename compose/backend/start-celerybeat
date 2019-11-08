@@ -1,0 +1,4 @@
+#!/bin/sh
+
+rm -f '/tmp/celerybeat.pid'
+celery -A backend.worker.celery beat -l INFO --pidfile=/tmp/celerybeat.pid

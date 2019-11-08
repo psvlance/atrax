@@ -1,0 +1,1 @@
+from backend.core.engine import celery
